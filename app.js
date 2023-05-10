@@ -20,7 +20,7 @@ function getCategories() {
       categories.forEach(function(category) {
         let $category = $(`
           <div class="category">
-            <h2>${category.title}</h2>
+            <h2>${category.title.toUpperCase()}</h2>
           </div>
         `);
   
@@ -51,3 +51,60 @@ function getCategories() {
       location.reload();
     });
   });
+
+  var restartButton = document.querySelector('#restart-button');
+
+  restartButton.addEventListener('click', function() {
+    $.ajax({
+      url: 'http://jservice.io/api/categories',
+      data: { count: 100 },
+      success: function(data) {
+        // Shuffle the categories
+        data = shuffle(data);
+        
+        // Get the first 6 categories
+        data = data.slice(0, 6);
+        
+        var categories = document.querySelectorAll('.category');
+    
+        for (var i = 0; i < categories.length; i++) {
+          categories[i].textContent = data[i].title.toUpperCase();
+        }
+        
+        var questions = document.querySelectorAll('.question');
+        
+        questions.forEach(function(question) {
+          var state = 'question';
+          
+          question.addEventListener('click', function() {
+            var text = question.textContent;
+            
+            if (state === 'question') {
+              question.textContent = text.replace('Question: ', 'Answer: ');
+              state = 'answer';
+            }
+          });
+          
+          question.textContent = '?';
+          state = 'question';
+        });
+      }
+    });
+  });
+  
+  // Function to shuffle an array
+  function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+    
+    while (0 !== currentIndex) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+      
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+    
+    return array;
+  }
+  
